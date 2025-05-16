@@ -13,6 +13,16 @@
 - `datasets/`: Tools and notebooks to build and label datasets (e.g., `get_label_files.ipynb`)
 - `baselines/`: Includes SwinV2 (trainable), CLIP-based, and InternVL baselines  
   Each has its own README with instructions to reproduce results
+---
+
+## 📥 Downloads
+
+We provide additional resources for evaluating model generalization to unseen generators:
+
+- 📂 [Imagen 3 Test Set (~1,500 images)](https://drive.google.com/file/d/1hd-cfhkn2eTI6Aj-XdbNHa1M2vcbfjqa/view?usp=share_link)
+- 📂 [Stable Diffusion 2.1 Test Set (~1,500 images)](https://drive.google.com/file/d/1l4Om1ta28rZkqFxdaFm2DlEwKN19vzfM/view?usp=share_link)
+
+These can be used to benchmark detection performance on out-of-distribution samples.
 
 ---
 
@@ -20,7 +30,7 @@
 
 | **Metric**           | **SwinV2-small** | **CLIP-D-10k+** | **Corvi2023** | **Fusion CLIP+Corvi** | **InternVL** |
 |----------------------|------------------|------------------|----------------|------------------------|---------------|
-| **Real Images TNR**  | **0.9949**       | 0.107            | 0.997          | 0.848                  | 0.589         |
+| **Real Images TNR**  | **0.995**       | 0.107            | 0.997          | 0.848                  | 0.589         |
 |                      |                  |                  |                |                        |               |
 | Ideogram 3.0         | 0.999           | 0.947            | 0.176          | 0.400                  | 0.695         |
 | GPT Image 1          | 0.997           | 0.951            | 0.035          | 0.320                  | 0.766         |
@@ -33,17 +43,6 @@
 | **Overall ROC AUC**  | **1.000**       | 0.528            | 0.665          | 0.703                  | 0.628         |
 
 > **Table**: Detection performance across five baselines. We report TNR on real images, TPR for each synthetic generator, and overall F1/ROC AUC.
-
----
-
-## 📥 Downloads
-
-We provide additional resources for evaluating model generalization to unseen generators:
-
-- 📂 [Imagen 3 Test Set (~1,500 images)](https://drive.google.com/file/d/1hd-cfhkn2eTI6Aj-XdbNHa1M2vcbfjqa/view?usp=share_link)
-- 📂 [Stable Diffusion 2.1 Test Set (~1,500 images)](https://drive.google.com/file/d/1l4Om1ta28rZkqFxdaFm2DlEwKN19vzfM/view?usp=share_link)
-
-These can be used to benchmark detection performance on out-of-distribution samples.
 
 ---
 
