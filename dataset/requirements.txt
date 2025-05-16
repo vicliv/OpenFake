@@ -1,0 +1,8 @@
+diffusers==0.32.2
+numpy==2.2.5
+pandas==1.5.3
+Pillow==11.2.1
+qwen_vl_utils==0.0.11
+Requests==2.32.3
+torch==2.6.0+cu126
+transformers==4.52.0.dev0

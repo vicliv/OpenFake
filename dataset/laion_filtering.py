@@ -10,6 +10,7 @@ from PIL import Image, ImageFile
 from io import BytesIO
 import torch
 import concurrent.futures
+import argparse
 
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
@@ -17,22 +18,29 @@ from qwen_vl_utils import process_vision_info
 # Allow truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-# ======== Constants ========
-METADATA_DIR = "/network/datasets/laion400m/laion400m-met-release/laion400m-meta"
-DOWNLOAD_DIR = "downloaded_images"
-TEMP_DIR = "temp_images"
+# ======== Argument Parser ========
+parser = argparse.ArgumentParser()
+parser.add_argument("--metadata_dir", type=str, default="laion400m/laion400m-met-release/laion400m-meta")
+parser.add_argument("--download_dir", type=str, default="downloaded_images")
+parser.add_argument("--temp_dir", type=str, default="temp_images")
+parser.add_argument("--max_downloads_per_gpu", type=int, default=1000)
+parser.add_argument("--max_images_per_gpu", type=int, default=1000000)
+parser.add_argument("--prompts_file", type=str, default="prompts.csv")
+args = parser.parse_args()
+
 CHECKPOINT_FILE_TEMPLATE = "progress_checkpoint_gpu{}.json"
-METADATA_CSV_TEMPLATE = "downloaded_images_metadata_gpu{}.csv"
-MAX_DOWNLOADS_PER_GPU = 1000
-MAX_IMAGES_PER_GPU = 1000000
+METADATA_CSV_TEMPLATE = args.prompts_file
 
 # ======== Get GPU/Task ID from Arguments ========
 if len(sys.argv) < 2:
     print("Usage: python laion.py <gpu/task id>", flush=True)
     sys.exit(1)
 gpu_id = int(sys.argv[1])  # Provided via SLURM_ARRAY_TASK_ID
-temp_dir = str(sys.argv[2]) if len(sys.argv) > 2 else TEMP_DIR
-TEMP_DIR = os.path.join(temp_dir, f"temp_images_gpu{gpu_id}")
+METADATA_DIR = args.metadata_dir
+DOWNLOAD_DIR = args.download_dir
+TEMP_DIR = os.path.join(args.temp_dir, f"temp_images_gpu{gpu_id}")
+MAX_DOWNLOADS_PER_GPU = args.max_downloads_per_gpu
+MAX_IMAGES_PER_GPU = args.max_images_per_gpu
 if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR, exist_ok=True)
 
@@ -43,6 +51,7 @@ num_tasks = int(os.environ.get("SLURM_ARRAY_TASK_COUNT", 1))
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 metadata_csv = METADATA_CSV_TEMPLATE.format(gpu_id)
+
 if not os.path.exists(metadata_csv):
     with open(metadata_csv, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)

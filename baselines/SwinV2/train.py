@@ -213,7 +213,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on OpenFake dataset")
     parser.add_argument("--output_dir", type=str, default="./swinv2-finetuned-openfake", help="Output directory for model checkpoints")
-    parser.add_argument("--num_epochs", type=int, default=2, help="Number of training epochs")
+    parser.add_argument("--num_epochs", type=int, default=4, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training and evaluation")
     parser.add_argument("--learning_rate", type=float, default=5e-5, help="Learning rate for the optimizer")
     parser.add_argument("--num_workers", type=int, default=4,help="DataLoader worker processes")
