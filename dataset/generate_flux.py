@@ -13,6 +13,7 @@ parser.add_argument('metadata_csv', help='Path to the metadata CSV file')
 parser.add_argument('--lora_path', help='Path to a local LoRA weights file (.safetensors)', default=None) # Optional argument for LoRA weights
 parser.add_argument('--local_rank', type=int, default=local_rank, help='Local rank for distributed training')
 parser.add_argument('--world_size', type=int, default=world_size, help='World size for distributed training')
+parser.add_argument('--cache_dir', type=str, default='.cache', help='Cache directory for model weights')
 args = parser.parse_args()
 base_dir = args.base_dir
 lora_path = args.lora_path
@@ -35,8 +36,6 @@ if os.path.exists(progress_path):
         generated_count = int(pf.read().strip())
 else:
     generated_count = 0
-
-cache_dir = os.path.join(os.environ["SCRATCH"], ".cache")
 
 # ======== Initialize Flux Pipeline on GPU ========
 if torch.cuda.is_available():
