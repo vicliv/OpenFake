@@ -36,6 +36,17 @@
 
 ---
 
+## 📥 Downloads
+
+We provide additional resources for evaluating model generalization to unseen generators:
+
+- 📂 [Imagen 3 Test Set (~1,500 images)](https://drive.google.com/file/d/1hd-cfhkn2eTI6Aj-XdbNHa1M2vcbfjqa/view?usp=share_link)
+- 📂 [Stable Diffusion 2.1 Test Set (~1,500 images)](https://drive.google.com/file/d/1l4Om1ta28rZkqFxdaFm2DlEwKN19vzfM/view?usp=share_link)
+
+These can be used to benchmark detection performance on out-of-distribution samples.
+
+---
+
 ## 🧠 Citation
 
 ```bibtex
@@ -45,4 +56,3 @@
 ---
 
 ## 🛡️ License
-
