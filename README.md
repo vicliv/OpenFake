@@ -10,7 +10,7 @@
 
 ## 📁 Repository Structure
 
-- `datasets/`: Tools and notebooks to build and label datasets (e.g., `get_label_files.ipynb`)
+- `datasets/`: Tools and notebooks to build and label datasets
 - `baselines/`: Includes SwinV2 (trainable), CLIP-based, and InternVL baselines  
   Each has its own README with instructions to reproduce results
 ---
