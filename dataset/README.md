@@ -33,9 +33,27 @@ data/
 
 These directories are ignored by git.
 
+## Continuous Update Model
+
+The dataset scripts are intended to be run repeatedly. Each pipeline writes images into a staging directory and appends metadata rows to a CSV. State files prevent duplicated work:
+
+- `data/model_registry.json`: text-to-image model status for Hugging Face generation.
+- `data/inpaint_model_registry.json`: inpainting model status.
+- `data/reddit_images/reddit_metadata.csv`: downloaded Reddit filenames and post dates, used to resume by subreddit.
+- `packaged` metadata columns: used by packaging utilities to mark rows already included in a Hub upload.
+
+This means a normal update cycle is:
+
+1. Run one or more collectors/generators to append new rows.
+2. Optionally filter or inspect staged images.
+3. Package the updated rows into a Hugging Face dataset config.
+4. Re-run later with the same registry and metadata paths to continue from the previous state.
+
 ## Text-to-Image Pipeline
 
-The Hugging Face pipeline scans Diffusers models, downloads eligible weights, and submits generation jobs to the configured scheduler script.
+The Hugging Face pipeline scans Diffusers models, downloads eligible weights, and submits generation jobs to the configured scheduler script. It is resumable through `--registry-file`: completed models are skipped, incompatible models are marked as model faults, and temporary infrastructure failures are retried on the next run.
+
+For a continuous update across eligible Hugging Face text-to-image models:
 
 ```bash
 uv run python dataset/huggingface_pipeline.py \
@@ -44,6 +62,14 @@ uv run python dataset/huggingface_pipeline.py \
   --slurm-log-dir data/slurm_logs \
   --txt2img-script /path/to/scheduler-wrapper
 ```
+
+Outputs:
+
+- images in `data/staging_images/`
+- metadata in `data/staging_images/metadata.csv`
+- model status in `data/model_registry.json`
+
+The metadata rows include filename, prompt, label, model ID, model type, release date, and packaging status. Re-running the command with the same registry continues the scan without regenerating completed models.
 
 For a single model:
 
@@ -67,6 +93,8 @@ uv run python dataset/generate_batch_samples.py \
   --prompts-csv data/prompts/unused_prompts2.csv
 ```
 
+Direct worker calls do not update model registry status; use the pipeline entry point for the continuous update workflow.
+
 ## Inpainting Pipeline
 
 Prepare Open Images metadata and prompt shards first, then download required masks:
@@ -84,7 +112,7 @@ uv run python dataset/utils/download-inpainting-masks.py \
   --zips-dir data/open_images/tmp_zips
 ```
 
-Run inpainting:
+Run inpainting for one or more models:
 
 ```bash
 uv run python dataset/inpaint_pipeline.py \
@@ -96,6 +124,8 @@ uv run python dataset/inpaint_pipeline.py \
   --registry-file data/inpaint_model_registry.json
 ```
 
+For continuous updates, keep the same `--registry-file`, `--master-prompts-csv`, and `--masks-dir`. The pipeline samples valid mask/image rows, writes a temporary per-model manifest, appends generated images to `data/staging_inpaint_images/metadata.csv`, and skips models already marked completed or model-faulted.
+
 ## Reddit Pipeline
 
 Create a Reddit credentials CSV with columns:
@@ -104,7 +134,19 @@ Create a Reddit credentials CSV with columns:
 datatype,client_id,client_secret,useragent
 ```
 
-Then run:
+Then run in resume mode:
+
+```bash
+uv run python dataset/reddit_scraper.py \
+  --creds-csv data/creds/creds.csv \
+  --staging-dir data/reddit_images \
+  --metadata-csv data/reddit_images/reddit_metadata.csv \
+  --skip-nsfw-filter
+```
+
+Resume mode reads `reddit_metadata.csv`, finds the most recent `post_date` per subreddit, and only downloads newer posts. Image posts are saved directly; supported Reddit videos are converted into evenly spaced frame images. Every saved image/frame gets a metadata row with its label, subreddit, post date, Reddit ID, and packaging status.
+
+Use a fixed lookback when bootstrapping or intentionally backfilling:
 
 ```bash
 uv run python dataset/reddit_scraper.py \

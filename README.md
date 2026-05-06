@@ -78,6 +78,37 @@ Dataset sources:
 - DOCCI: download `google/docci` and pass the image directory as `--docci-dir`.
 - ImageNet: download ILSVRC2012 train images through the official ImageNet access flow and pass the unpacked `train/` directory as `--imagenet-dir`.
 
+## Continuously Updated Dataset Pipeline
+
+OpenFake was designed as a continuously updated dataset rather than a one-time static scrape. The generation and Reddit scripts append new images and metadata to local staging directories, while registry/metadata files keep enough state to resume later runs without reprocessing completed work.
+
+There are three update streams:
+
+- Text-to-image generation: `dataset/huggingface_pipeline.py` scans Hugging Face Diffusers models, filters eligible models, downloads weights, generates images from the prompt CSV, appends rows to `data/staging_images/metadata.csv`, and records model status in `data/model_registry.json`.
+- Inpainting generation: `dataset/inpaint_pipeline.py` uses Open Images masks and generated prompts, downloads only the needed source photos for each run, writes inpainted images to `data/staging_inpaint_images/`, and records status in `data/inpaint_model_registry.json`.
+- Reddit collection: `dataset/reddit_scraper.py` reads the existing `reddit_metadata.csv`, resumes each subreddit from the latest scraped post date, downloads new image posts and video frames, and appends rows to `data/reddit_images/reddit_metadata.csv`.
+
+A typical repeated update looks like:
+
+```bash
+# Add new synthetic images from eligible Hugging Face text-to-image models.
+uv run python dataset/huggingface_pipeline.py \
+  --staging-dir data/staging_images \
+  --registry-file data/model_registry.json \
+  --slurm-log-dir data/slurm_logs \
+  --txt2img-script /path/to/scheduler-wrapper
+
+# Add new Reddit images since the last recorded post per subreddit.
+uv run python dataset/reddit_scraper.py \
+  --creds-csv data/creds/creds.csv \
+  --staging-dir data/reddit_images \
+  --metadata-csv data/reddit_images/reddit_metadata.csv
+```
+
+The text-to-image registry has `COMPLETED`, `MODEL_FAULT`, and `INFRASTRUCTURE_FAULT` states. Future runs skip completed and model-fault entries, and retry infrastructure faults. The Reddit scraper is date-resumable per subreddit; use `--days-ago N` only when you want to force a fixed lookback instead of resume mode.
+
+After collecting more rows, package and upload the updated configs with the dataset utilities in `dataset/README.md`. Use `--dry-run` first to inspect what would be pushed.
+
 ## Model Weights
 
 Paper weights are not tracked in git. Put them under `model_weights/`.
