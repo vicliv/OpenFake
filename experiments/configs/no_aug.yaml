@@ -1,0 +1,84 @@
+data:
+  train_splits:
+    - "splits/of_train_v2.csv"
+  test_sets:
+    - "splits/of_test_indist_v2.csv"
+    - "splits/of_test_ood_models_v2.csv"
+    - "splits/reddit.csv"
+    - "splits/cf_eval.csv"
+    - "splits/sofake_ood.csv"
+    - "splits/genimage_test.csv"
+    - "splits/semitruths_eval.csv"
+  val_split: "splits/of_test_indist_v2.csv"
+
+model:
+  name: "swinv2-small"
+  pretrained: true
+  num_labels: 2
+
+augment:
+  use_compression: false
+  compression_p: 1.0
+  compression_seed: 42
+
+  compression:
+    jpeg_quality: [55, 95]
+    jpeg_double_encode_p: 0.3
+    jpeg_double_quality: [50, 85]
+    webp_quality: [65, 90]
+    webp_lossless_p: 0.05
+    avif_quality: [40, 80]
+    resize_jpeg_long_edge: [720, 1080]
+    resize_jpeg_quality: [65, 85]
+    jpeg_prob: 0.45
+    webp_prob: 0.20
+    avif_prob: 0.10
+    resize_jpeg_prob: 0.10
+    no_compression_prob: 0.15
+
+  random_resized_crop: false
+  random_resized_crop_size: 256
+  random_resized_crop_scale: [0.5, 1.0]
+  random_resized_crop_ratio: [0.5, 2.0]
+
+  color_jitter: false
+  color_jitter_p: 0.8
+  color_jitter_brightness: 0.3
+  color_jitter_contrast: 0.5
+  color_jitter_saturation: 0.5
+
+  random_rotation: true
+  random_rotation_p: 0.5
+  random_rotation_degrees: 15.0
+
+  random_horizontal_flip: true
+  random_horizontal_flip_p: 0.1
+
+  gaussian_blur: false
+  gaussian_blur_p: 0.5
+  gaussian_blur_kernel: [5, 5]
+  gaussian_blur_sigma: [0.1, 0.5]
+
+training:
+  num_train_epochs: 5
+  per_device_train_batch_size: 64
+  per_device_eval_batch_size: 128
+  learning_rate: 8.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  eval_steps: 1000
+  save_steps: 1000
+  save_total_limit: 5
+  fp16: true
+  bf16: false
+  dataloader_num_workers: 8
+  dataloader_prefetch_factor: 2
+  dataloader_persistent_workers: false
+  prefetch_buffer_size: 1
+  report_to: "wandb"
+  wandb_project: "openfake"
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_auc_roc"
+  greater_is_better: true
+  logging_steps: 100
+  ddp_find_unused_parameters: false

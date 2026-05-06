@@ -1,0 +1,32 @@
+data:
+  hf_train:
+    dataset_name: "saberzl/So-Fake-Set"
+    split: "train"
+    image_key: "image"
+    label_key: "label"
+    model_key: "generator"
+  test_splits:
+    - "splits/of_test_indist_v2.csv"
+  test_sets:
+    - "splits/of_test_indist_v2.csv"
+    - "splits/of_test_ood_models_v2.csv"
+    - "splits/reddit.csv"
+    - "splits/cf_eval.csv"
+    - "splits/sofake_ood.csv"
+    - "splits/genimage_test.csv"
+    - "splits/semitruths_eval.csv"
+
+model:
+  name: "swinv2-small"
+  pretrained: true
+  num_labels: 2
+
+training:
+  num_train_epochs: 5
+  per_device_train_batch_size: 64
+  per_device_eval_batch_size: 128
+  learning_rate: 5.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  wandb_project: "openfake-neurips26"
+  wandb_run_name: "sofake_v2"

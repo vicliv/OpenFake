@@ -1,0 +1,13 @@
+.venv
+creds
+data
+models.csv
+__pycache__
+.env
+models
+*.csv
+*.json
+*.
+logs/*
+slurm_logs/*
+samples
