@@ -133,5 +133,6 @@ You are free to share and adapt the material for non-commercial purposes,
 provided you give appropriate credit. Commercial use is not permitted without
 separate permission.
 
+Third-party components retain their original licenses
 
 The released weights are also distributed under CC BY-NC 4.0 (see the License section below).
