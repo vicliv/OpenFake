@@ -122,3 +122,16 @@ The C-F checkpoint is downloaded from Hugging Face by `experiments/scripts/eval_
 ## Reproduction
 
 See `experiments/README.md` for training and evaluation commands. See `dataset/README.md` for dataset creation and packaging commands.
+
+## License
+
+This work — including the code in this repository and the released model
+weights — is licensed under a
+[Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+
+You are free to share and adapt the material for non-commercial purposes,
+provided you give appropriate credit. Commercial use is not permitted without
+separate permission.
+
+
+The released weights are also distributed under CC BY-NC 4.0 (see the License section below).
